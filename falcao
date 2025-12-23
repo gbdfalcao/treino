@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Treino</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            text-align: center;
+            user-select: none;
+        }
+        #container { width: 90%; }
+        h1 { font-size: 1.5rem; color: #bb86fc; margin-bottom: 10px; }
+        #exercicio-nome { font-size: 2.5rem; font-weight: bold; margin: 20px 0; min-height: 120px; }
+        #meta { font-size: 1.2rem; color: #03dac6; margin-bottom: 30px; }
+        #timer { font-size: 5rem; font-family: monospace; margin: 20px 0; color: #ff0266; }
+        #progresso { font-size: 1rem; color: #888; margin-top: 20px; }
+        .instrucao { font-size: 1rem; color: #fff; background: #333; padding: 15px; border-radius: 10px; margin-top: 20px; }
+    </style>
+</head>
+<body onclick="interagir()">
+
+    <div id="container">
+        <h1 id="status">Toque para Iniciar</h1>
+        <div id="exercicio-nome">Pronto?</div>
+        <div id="meta">Aguardando início...</div>
+        <div id="timer">00:00</div>
+        <div id="progresso">Exercício 0 de 26</div>
+        
+        <div class="instrucao" id="msg-botao">Toque em qualquer lugar para começar</div>
+    </div>
+
+    <script>
+        const listaExercicios = [
+            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
+            { n: "Polichinelo", m: "200 repetições", t: 0 },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
+            { n: "Isometria de quadríceps", m: "60 segundos", t: 60 },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
+            { n: "Prancha lateral", m: "2 minutos cada lado (Total 4min)", t: 240 },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
+            { n: "Sugado (burpee)", m: "10 repetições", t: 0 },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
+            { n: "Abdominal remada", m: "20 repetições", t: 0 },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
+            { n: "Prancha lateral com abdominal", m: "30 repetições cada lado", t: 0 },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
+            { n: "Propriocepção", m: "60 segundos cada lado", t: 120 },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
+            { n: "Salto horizontal com flexão", m: "10 repetições", t: 0 },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
+            { n: "Prancha frontal", m: "2 minutos", t: 120 },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
+            { n: "Extensão lombar (superman)", m: "20 repetições", t: 0 },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
+            { n: "Afundo", m: "10 repetições cada lado", t: 0 },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
+            { n: "Flexão com elevação de pernas", m: "20 repetições", t: 0 },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
+            { n: "Aceleração máxima", m: "60 segundos", t: 60 }
+        ];
+
+        let indiceAtual = -1;
+        let tempoRestante = 0;
+        let cronometroAtivo = false;
+        let interval;
+
+        function interagir() {
+            if (cronometroAtivo) return; // Evita cliques duplos durante o tempo
+
+            if (indiceAtual < listaExercicios.length - 1) {
+                proximoExercicio();
+            } else {
+                reiniciar();
+            }
+        }
+
+        function proximoExercicio() {
+            indiceAtual++;
+            const ex = listaExercicios[indiceAtual];
+            
+            document.getElementById('exercicio-nome').innerText = ex.n;
+            document.getElementById('meta').innerText = ex.m;
+            document.getElementById('status').innerText = "EM EXECUÇÃO";
+            document.getElementById('progresso').innerText = `Exercício ${indiceAtual + 1} de ${listaExercicios.length}`;
+            document.getElementById('msg-botao').innerText = "Aguarde o tempo ou termine as reps";
+
+            if (ex.t > 0) {
+                iniciarCronometro(ex.t);
+            } else {
+                document.getElementById('timer').innerText = "--:--";
+                document.getElementById('status').innerText = "CONCLUA AS REPS";
+                document.getElementById('msg-botao').innerText = "Toque ao terminar para o próximo";
+                cronometroAtivo = false;
+            }
+        }
+
+        function iniciarCronometro(segundos) {
+            tempoRestante = segundos;
+            cronometroAtivo = true;
+            atualizarDisplay(tempoRestante);
+
+            interval = setInterval(() => {
+                tempoRestante--;
+                atualizarDisplay(tempoRestante);
+
+                if (tempoRestante <= 0) {
+                    clearInterval(interval);
+                    cronometroAtivo = false;
+                    document.getElementById('status').innerText = "CONCLUÍDO!";
+                    document.getElementById('msg-botao').innerText = "Toque para o PRÓXIMO";
+                    // Som de alerta simples
+                    beep();
+                }
+            }, 1000);
+        }
+
+        function atualizarDisplay(seg) {
+            const min = Math.floor(seg / 60);
+            const s = seg % 60;
+            document.getElementById('timer').innerText = 
+                `${min.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function reiniciar() {
+            indiceAtual = -1;
+            document.getElementById('exercicio-nome').innerText = "Treino Finalizado!";
+            document.getElementById('meta').innerText = "Parabéns!";
+            document.getElementById('timer').innerText = "00:00";
+            document.getElementById('status').innerText = "Toque para recomeçar";
+        }
+
+        function beep() {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = context.createOscillator();
+            oscillator.type = "sine";
+            oscillator.frequency.setValueAtTime(440, context.currentTime);
+            oscillator.connect(context.destination);
+            oscillator.start();
+            oscillator.stop(context.currentTime + 0.5);
+        }
+    </script>
+</body>
+</html>
