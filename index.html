@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treino Pro - Lados Individuais</title>
+    <title>Treino Pro - Ajustado</title>
     <style>
         :root {
             --bg-deep: #0a0e14;
-            --bg-card: #161b22;
             --accent-blue: #58a6ff;
             --timer-color: #3fb950;
             --text-main: #c9d1d9;
@@ -26,27 +25,30 @@
             overflow: hidden;
             text-align: center;
         }
-        #container { width: 85%; max-width: 400px; z-index: 1; }
+        #container { width: 85%; max-width: 400px; z-index: 1; pointer-events: none; }
         h1 { font-size: 1.1rem; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 2px; margin: 0; }
-        #lado-info { font-size: 1.5rem; color: var(--side-indicator); font-weight: bold; height: 30px; margin-top: 10px; }
-        #exercicio-nome { font-size: 2.2rem; font-weight: 800; margin: 10px 0; min-height: 90px; display: flex; align-items: center; justify-content: center; color: white; }
+        #lado-info { font-size: 1.5rem; color: var(--side-indicator); font-weight: bold; height: 35px; margin-top: 10px; }
+        #exercicio-nome { font-size: 2.2rem; font-weight: 800; margin: 10px 0; min-height: 90px; color: white; }
         #meta { font-size: 1.2rem; margin-bottom: 20px; opacity: 0.9; }
-        #timer { font-size: 5.5rem; font-weight: 300; font-family: 'Courier New', monospace; margin: 5px 0; color: var(--timer-color); }
+        #timer { font-size: 5.5rem; font-weight: 300; font-family: monospace; margin: 5px 0; color: var(--timer-color); }
         #progresso { font-size: 0.8rem; margin-top: 20px; opacity: 0.5; }
         
-        .area-clicavel { position: absolute; top: 0; left: 0; width: 100%; height: 80%; z-index: 2; }
+        /* Área invisível que detecta o toque */
+        #camada-toque { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 80%; z-index: 5; 
+        }
         
         #btn-voltar {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             background: #21262d; border: 1px solid #30363d; color: white;
-            padding: 12px 30px; border-radius: 25px; font-size: 1rem; z-index: 10; cursor: pointer;
+            padding: 15px 40px; border-radius: 30px; font-size: 1rem; z-index: 10;
         }
-        .instrucao { font-size: 0.9rem; color: var(--accent-blue); margin-top: 15px; font-weight: bold; height: 20px; }
+        .instrucao { font-size: 0.9rem; color: var(--accent-blue); margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="area-clicavel" onclick="gerenciarClique()"></div>
+    <div id="camada-toque" onclick="gerenciarClique()"></div>
 
     <div id="container">
         <h1 id="status">Iniciar Treino</h1>
@@ -92,25 +94,24 @@
 
         let indice = -1;
         let tempoRestante = 0;
-        let interval;
+        let interval = null;
         let emExecucao = false;
         let ladoB = false;
+        let aguardandoProximo = true;
 
         function gerenciarClique() {
-            if (emExecucao) return;
+            if (emExecucao) return; // Bloqueia clique se o tempo estiver rodando
 
-            const ex = listaExercicios[indice];
-
-            // Se for exercício de tempo e ainda não iniciou o timer
-            if (indice >= 0 && ex.t > 0) {
-                iniciarTimer();
-            } else {
+            if (aguardandoProximo) {
                 avancar();
+            } else {
+                iniciarTimer();
             }
         }
 
         function atualizarTela() {
             clearInterval(interval);
+            interval = null;
             emExecucao = false;
             
             const ex = listaExercicios[indice];
@@ -129,10 +130,12 @@
                 atualizarRelogio(tempoRestante);
                 document.getElementById('status').innerText = "PREPARAR";
                 document.getElementById('msg-instrucao').innerText = "Toque para iniciar o tempo";
+                aguardandoProximo = false;
             } else {
                 document.getElementById('timer').innerText = "REPS";
                 document.getElementById('status').innerText = "EXECUTE";
                 document.getElementById('msg-instrucao').innerText = "Toque ao concluir";
+                aguardandoProximo = true;
             }
         }
 
@@ -147,46 +150,51 @@
         }
 
         function voltar() {
+            clearInterval(interval);
+            emExecucao = false;
             if (ladoB) {
                 ladoB = false;
-                atualizarTela();
             } else if (indice > 0) {
                 indice--;
-                const exAnterior = listaExercicios[indice];
-                // Se o anterior for duplo, volta para o Lado B dele
-                ladoB = exAnterior.duplo ? true : false;
-                atualizarTela();
+                // Verifica se o anterior era duplo para voltar ao lado B dele
+                ladoB = listaExercicios[indice].duplo;
             }
+            atualizarTela();
         }
 
         function iniciarTimer() {
+            if (emExecucao) return;
             emExecucao = true;
-            document.getElementById('status').innerText = "FOCO!";
-            document.getElementById('msg-instrucao').innerText = "Contando...";
+            document.getElementById('status').innerText = "TREINANDO";
+            document.getElementById('msg-instrucao').innerText = "Aguarde o fim...";
             
             interval = setInterval(() => {
                 tempoRestante--;
-                atualizarRelogio(tempoRestante);
                 if (tempoRestante <= 0) {
-                    clearInterval(interval);
-                    emExecucao = false;
-                    concluirSet();
+                    tempoRestante = 0;
+                    finalizarPeriodo();
                 }
+                atualizarRelogio(tempoRestante);
             }, 1000);
         }
 
-        function concluirSet() {
-            const ex = listaExercicios[indice];
+        function finalizarPeriodo() {
+            clearInterval(interval);
+            interval = null;
+            emExecucao = false;
             beep();
             
+            const ex = listaExercicios[indice];
             if (ex.duplo && !ladoB) {
                 ladoB = true;
+                aguardandoProximo = false; 
                 document.getElementById('status').innerText = "TROQUE O LADO";
                 document.getElementById('msg-instrucao').innerText = "Toque para o LADO B";
+                document.getElementById('lado-info').innerText = "LADO B (Direito)";
                 tempoRestante = ex.t;
                 atualizarRelogio(tempoRestante);
-                document.getElementById('lado-info').innerText = "LADO B (Direito)";
             } else {
+                aguardandoProximo = true;
                 document.getElementById('status').innerText = "CONCLUÍDO";
                 document.getElementById('msg-instrucao').innerText = "Toque para PRÓXIMO";
             }
@@ -203,6 +211,8 @@
             document.getElementById('lado-info').innerText = "";
             document.getElementById('meta').innerText = "Bom descanso!";
             document.getElementById('timer').innerText = "FIM";
+            document.getElementById('status').innerText = "PARABÉNS";
+            aguardandoProximo = true;
             indice = -1;
         }
 
@@ -212,8 +222,8 @@
                 const oscillator = context.createOscillator();
                 oscillator.connect(context.destination);
                 oscillator.start();
-                oscillator.stop(context.currentTime + 0.5);
-            } catch(e) { console.log("Audio não suportado"); }
+                oscillator.stop(context.currentTime + 0.3);
+            } catch(e) {}
         }
     </script>
 </body>
