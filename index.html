@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Treino</title>
+    <title>Treino Pro - Lados Individuais</title>
     <style>
+        :root {
+            --bg-deep: #0a0e14;
+            --bg-card: #161b22;
+            --accent-blue: #58a6ff;
+            --timer-color: #3fb950;
+            --text-main: #c9d1d9;
+            --side-indicator: #f2a65a;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: white;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -17,137 +25,195 @@
             margin: 0;
             overflow: hidden;
             text-align: center;
-            user-select: none;
         }
-        #container { width: 90%; }
-        h1 { font-size: 1.5rem; color: #bb86fc; margin-bottom: 10px; }
-        #exercicio-nome { font-size: 2.5rem; font-weight: bold; margin: 20px 0; min-height: 120px; }
-        #meta { font-size: 1.2rem; color: #03dac6; margin-bottom: 30px; }
-        #timer { font-size: 5rem; font-family: monospace; margin: 20px 0; color: #ff0266; }
-        #progresso { font-size: 1rem; color: #888; margin-top: 20px; }
-        .instrucao { font-size: 1rem; color: #fff; background: #333; padding: 15px; border-radius: 10px; margin-top: 20px; }
+        #container { width: 85%; max-width: 400px; z-index: 1; }
+        h1 { font-size: 1.1rem; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 2px; margin: 0; }
+        #lado-info { font-size: 1.5rem; color: var(--side-indicator); font-weight: bold; height: 30px; margin-top: 10px; }
+        #exercicio-nome { font-size: 2.2rem; font-weight: 800; margin: 10px 0; min-height: 90px; display: flex; align-items: center; justify-content: center; color: white; }
+        #meta { font-size: 1.2rem; margin-bottom: 20px; opacity: 0.9; }
+        #timer { font-size: 5.5rem; font-weight: 300; font-family: 'Courier New', monospace; margin: 5px 0; color: var(--timer-color); }
+        #progresso { font-size: 0.8rem; margin-top: 20px; opacity: 0.5; }
+        
+        .area-clicavel { position: absolute; top: 0; left: 0; width: 100%; height: 80%; z-index: 2; }
+        
+        #btn-voltar {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #21262d; border: 1px solid #30363d; color: white;
+            padding: 12px 30px; border-radius: 25px; font-size: 1rem; z-index: 10; cursor: pointer;
+        }
+        .instrucao { font-size: 0.9rem; color: var(--accent-blue); margin-top: 15px; font-weight: bold; height: 20px; }
     </style>
 </head>
-<body onclick="interagir()">
+<body>
+
+    <div class="area-clicavel" onclick="gerenciarClique()"></div>
 
     <div id="container">
-        <h1 id="status">Toque para Iniciar</h1>
-        <div id="exercicio-nome">Pronto?</div>
-        <div id="meta">Aguardando início...</div>
+        <h1 id="status">Iniciar Treino</h1>
+        <div id="lado-info"></div>
+        <div id="exercicio-nome">Toque para começar</div>
+        <div id="meta">---</div>
         <div id="timer">00:00</div>
-        <div id="progresso">Exercício 0 de 26</div>
-        
-        <div class="instrucao" id="msg-botao">Toque em qualquer lugar para começar</div>
+        <div id="msg-instrucao" class="instrucao">Toque para iniciar</div>
+        <div id="progresso">0 / 26</div>
     </div>
+
+    <button id="btn-voltar" onclick="voltar()">← VOLTAR</button>
 
     <script>
         const listaExercicios = [
-            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
-            { n: "Polichinelo", m: "200 repetições", t: 0 },
-            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
-            { n: "Isometria de quadríceps", m: "60 segundos", t: 60 },
-            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
-            { n: "Prancha lateral", m: "2 minutos cada lado (Total 4min)", t: 240 },
-            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
-            { n: "Sugado (burpee)", m: "10 repetições", t: 0 },
-            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
-            { n: "Abdominal remada", m: "20 repetições", t: 0 },
-            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
-            { n: "Prancha lateral com abdominal", m: "30 repetições cada lado", t: 0 },
-            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
-            { n: "Propriocepção", m: "60 segundos cada lado", t: 120 },
-            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
-            { n: "Salto horizontal com flexão", m: "10 repetições", t: 0 },
-            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
-            { n: "Prancha frontal", m: "2 minutos", t: 120 },
-            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
-            { n: "Extensão lombar (superman)", m: "20 repetições", t: 0 },
-            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
-            { n: "Afundo", m: "10 repetições cada lado", t: 0 },
-            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
-            { n: "Flexão com elevação de pernas", m: "20 repetições", t: 0 },
-            { n: "Corrida estacionária", m: "60 segundos", t: 60 },
-            { n: "Aceleração máxima", m: "60 segundos", t: 60 }
+            { n: "Corrida estacionária", m: "Aquecimento", t: 60, duplo: false },
+            { n: "Polichinelo", m: "200 repetições", t: 0, duplo: false },
+            { n: "Corrida estacionária", m: "Manter ritmo", t: 60, duplo: false },
+            { n: "Isometria de quadríceps", m: "60 segundos", t: 60, duplo: false },
+            { n: "Corrida estacionária", m: "Manter ritmo", t: 60, duplo: false },
+            { n: "Prancha lateral", m: "2 minutos cada lado", t: 120, duplo: true },
+            { n: "Corrida estacionária", m: "Manter ritmo", t: 60, duplo: false },
+            { n: "Sugado (burpee)", m: "10 repetições", t: 0, duplo: false },
+            { n: "Corrida estacionária", m: "Manter ritmo", t: 60, duplo: false },
+            { n: "Abdominal remada", m: "20 repetições", t: 0, duplo: false },
+            { n: "Corrida estacionária", m: "Manter ritmo", t: 60, duplo: false },
+            { n: "Prancha lateral com abdominal", m: "30 reps cada lado", t: 0, duplo: false },
+            { n: "Corrida estacionária", m: "Manter ritmo", t: 60, duplo: false },
+            { n: "Propriocepção", m: "60 segundos cada lado", t: 60, duplo: true },
+            { n: "Corrida estacionária", m: "Manter ritmo", t: 60, duplo: false },
+            { n: "Salto horizontal com flexão", m: "10 repetições", t: 0, duplo: false },
+            { n: "Corrida estacionária", m: "Manter ritmo", t: 60, duplo: false },
+            { n: "Prancha frontal", m: "2 minutos", t: 120, duplo: false },
+            { n: "Corrida estacionária", m: "Manter ritmo", t: 60, duplo: false },
+            { n: "Extensão lombar (superman)", m: "20 repetições", t: 0, duplo: false },
+            { n: "Corrida estacionária", m: "Manter ritmo", t: 60, duplo: false },
+            { n: "Afundo", m: "10 reps cada lado", t: 0, duplo: false },
+            { n: "Corrida estacionária", m: "Manter ritmo", t: 60, duplo: false },
+            { n: "Flexão com elevação de pernas", m: "20 repetições", t: 0, duplo: false },
+            { n: "Corrida estacionária", m: "Manter ritmo", t: 60, duplo: false },
+            { n: "Aceleração máxima", m: "60 segundos", t: 60, duplo: false }
         ];
 
-        let indiceAtual = -1;
+        let indice = -1;
         let tempoRestante = 0;
-        let cronometroAtivo = false;
         let interval;
+        let emExecucao = false;
+        let ladoB = false;
 
-        function interagir() {
-            if (cronometroAtivo) return; // Evita cliques duplos durante o tempo
+        function gerenciarClique() {
+            if (emExecucao) return;
 
-            if (indiceAtual < listaExercicios.length - 1) {
-                proximoExercicio();
+            const ex = listaExercicios[indice];
+
+            // Se for exercício de tempo e ainda não iniciou o timer
+            if (indice >= 0 && ex.t > 0) {
+                iniciarTimer();
             } else {
-                reiniciar();
+                avancar();
             }
         }
 
-        function proximoExercicio() {
-            indiceAtual++;
-            const ex = listaExercicios[indiceAtual];
+        function atualizarTela() {
+            clearInterval(interval);
+            emExecucao = false;
             
+            const ex = listaExercicios[indice];
             document.getElementById('exercicio-nome').innerText = ex.n;
             document.getElementById('meta').innerText = ex.m;
-            document.getElementById('status').innerText = "EM EXECUÇÃO";
-            document.getElementById('progresso').innerText = `Exercício ${indiceAtual + 1} de ${listaExercicios.length}`;
-            document.getElementById('msg-botao').innerText = "Aguarde o tempo ou termine as reps";
+            document.getElementById('progresso').innerText = `${indice + 1} / ${listaExercicios.length}`;
+            
+            if (ex.duplo) {
+                document.getElementById('lado-info').innerText = ladoB ? "LADO B (Direito)" : "LADO A (Esquerdo)";
+            } else {
+                document.getElementById('lado-info').innerText = "";
+            }
 
             if (ex.t > 0) {
-                iniciarCronometro(ex.t);
+                tempoRestante = ex.t;
+                atualizarRelogio(tempoRestante);
+                document.getElementById('status').innerText = "PREPARAR";
+                document.getElementById('msg-instrucao').innerText = "Toque para iniciar o tempo";
             } else {
-                document.getElementById('timer').innerText = "--:--";
-                document.getElementById('status').innerText = "CONCLUA AS REPS";
-                document.getElementById('msg-botao').innerText = "Toque ao terminar para o próximo";
-                cronometroAtivo = false;
+                document.getElementById('timer').innerText = "REPS";
+                document.getElementById('status').innerText = "EXECUTE";
+                document.getElementById('msg-instrucao').innerText = "Toque ao concluir";
             }
         }
 
-        function iniciarCronometro(segundos) {
-            tempoRestante = segundos;
-            cronometroAtivo = true;
-            atualizarDisplay(tempoRestante);
+        function avancar() {
+            if (indice < listaExercicios.length - 1) {
+                indice++;
+                ladoB = false;
+                atualizarTela();
+            } else {
+                finalizar();
+            }
+        }
 
+        function voltar() {
+            if (ladoB) {
+                ladoB = false;
+                atualizarTela();
+            } else if (indice > 0) {
+                indice--;
+                const exAnterior = listaExercicios[indice];
+                // Se o anterior for duplo, volta para o Lado B dele
+                ladoB = exAnterior.duplo ? true : false;
+                atualizarTela();
+            }
+        }
+
+        function iniciarTimer() {
+            emExecucao = true;
+            document.getElementById('status').innerText = "FOCO!";
+            document.getElementById('msg-instrucao').innerText = "Contando...";
+            
             interval = setInterval(() => {
                 tempoRestante--;
-                atualizarDisplay(tempoRestante);
-
+                atualizarRelogio(tempoRestante);
                 if (tempoRestante <= 0) {
                     clearInterval(interval);
-                    cronometroAtivo = false;
-                    document.getElementById('status').innerText = "CONCLUÍDO!";
-                    document.getElementById('msg-botao').innerText = "Toque para o PRÓXIMO";
-                    // Som de alerta simples
-                    beep();
+                    emExecucao = false;
+                    concluirSet();
                 }
             }, 1000);
         }
 
-        function atualizarDisplay(seg) {
-            const min = Math.floor(seg / 60);
-            const s = seg % 60;
-            document.getElementById('timer').innerText = 
-                `${min.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        function concluirSet() {
+            const ex = listaExercicios[indice];
+            beep();
+            
+            if (ex.duplo && !ladoB) {
+                ladoB = true;
+                document.getElementById('status').innerText = "TROQUE O LADO";
+                document.getElementById('msg-instrucao').innerText = "Toque para o LADO B";
+                tempoRestante = ex.t;
+                atualizarRelogio(tempoRestante);
+                document.getElementById('lado-info').innerText = "LADO B (Direito)";
+            } else {
+                document.getElementById('status').innerText = "CONCLUÍDO";
+                document.getElementById('msg-instrucao').innerText = "Toque para PRÓXIMO";
+            }
         }
 
-        function reiniciar() {
-            indiceAtual = -1;
-            document.getElementById('exercicio-nome').innerText = "Treino Finalizado!";
-            document.getElementById('meta').innerText = "Parabéns!";
-            document.getElementById('timer').innerText = "00:00";
-            document.getElementById('status').innerText = "Toque para recomeçar";
+        function atualizarRelogio(seg) {
+            const m = Math.floor(seg / 60);
+            const s = seg % 60;
+            document.getElementById('timer').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function finalizar() {
+            document.getElementById('exercicio-nome').innerText = "TREINO PAGO!";
+            document.getElementById('lado-info').innerText = "";
+            document.getElementById('meta').innerText = "Bom descanso!";
+            document.getElementById('timer').innerText = "FIM";
+            indice = -1;
         }
 
         function beep() {
-            const context = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = context.createOscillator();
-            oscillator.type = "sine";
-            oscillator.frequency.setValueAtTime(440, context.currentTime);
-            oscillator.connect(context.destination);
-            oscillator.start();
-            oscillator.stop(context.currentTime + 0.5);
+            try {
+                const context = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = context.createOscillator();
+                oscillator.connect(context.destination);
+                oscillator.start();
+                oscillator.stop(context.currentTime + 0.5);
+            } catch(e) { console.log("Audio não suportado"); }
         }
     </script>
 </body>
