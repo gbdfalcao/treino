@@ -8,7 +8,8 @@
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d0208">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Treino Pro - Beast Mode</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23ff006e;stop-opacity:1'/><stop offset='100%25' style='stop-color:%2300f5ff;stop-opacity:1'/></linearGradient><filter id='glow'><feGaussianBlur stdDeviation='2' result='coloredBlur'/><feMerge><feMergeNode in='coloredBlur'/><feMergeNode in='SourceGraphic'/></feMerge></filter></defs><rect width='100' height='100' fill='%230d0208' rx='20'/><text x='50' y='70' font-family='Arial Black, sans-serif' font-size='55' font-weight='900' fill='url(%23grad)' text-anchor='middle' filter='url(%23glow)'>GF</text></svg>">
+    <title>Treino - Gabriel Falcão</title>ão</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
         
@@ -362,9 +363,35 @@
         .card-main {
             animation: slideUp 0.6s ease-out;
         }
+        
+        /* Cabeçalho personalizado */
+        .header-title {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--neon-pink) 0%, var(--neon-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(255,0,110,0.3);
+            padding: 8px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,0,110,0.3);
+            background-color: rgba(13,2,8,0.7);
+        }
     </style>
 </head>
 <body>
+
+    <div class="header-title">Treino - Gabriel Falcão</div>
 
     <div class="neon-orb neon-orb-1"></div>
     <div class="neon-orb neon-orb-2"></div>
