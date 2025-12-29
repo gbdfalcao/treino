@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>Treino - Gabriel Falcão</title>
-    <link rel="icon" href="favicon.png" type="image/png"> <style>
+    
+    <link rel="icon" href="favicon.png" type="image/png">
+
+    <style>
         :root {
             --bg-blue: #1a3a5f;
             --bg-card: #254b7a;
@@ -15,10 +17,10 @@
             --side-gold: #ffd700;
         }
 
-        /* ESTILO DO NOVO CABEÇALHO */
+        /* CABEÇALHO FIXO COM SEU NOME */
         .header-identificacao {
             width: 100%;
-            background-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(0, 0, 0, 0.4);
             padding: 15px 0;
             border-bottom: 2px solid var(--accent-cyan);
             position: fixed;
@@ -29,10 +31,11 @@
 
         .header-identificacao h2 {
             margin: 0;
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--text-white);
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             text-transform: uppercase;
+            font-family: sans-serif;
         }
 
         body {
@@ -49,24 +52,31 @@
             text-align: center;
         }
 
-        #container { width: 85%; max-width: 450px; z-index: 1; pointer-events: none; margin-top: 50px; }
-        h1 { font-size: 1.2rem; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 2px; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        #lado-info { font-size: 1.4rem; color: var(--side-gold); font-weight: bold; height: 35px; margin-top: 10px; }
-        #exercicio-nome { font-size: 2.3rem; font-weight: 800; margin: 10px 0; min-height: 100px; line-height: 1.2; }
-        #meta { font-size: 1.5rem; margin-bottom: 20px; font-weight: 600; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; }
-        #timer { font-size: 6rem; font-weight: 300; font-family: 'Courier New', monospace; margin: 5px 0; color: var(--timer-green); text-shadow: 0 0 20px rgba(64, 255, 112, 0.4); }
-        #progresso { font-size: 0.9rem; margin-top: 25px; opacity: 0.7; letter-spacing: 1px; }
+        #container { width: 85%; max-width: 450px; z-index: 1; pointer-events: none; margin-top: 60px; }
         
-        #camada-toque { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
+        h1#status { font-size: 1.1rem; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 2px; margin: 0; }
+        
+        #lado-info { font-size: 1.4rem; color: var(--side-gold); font-weight: bold; height: 35px; margin-top: 10px; }
+        
+        #exercicio-nome { font-size: 2.1rem; font-weight: 800; margin: 10px 0; min-height: 90px; line-height: 1.1; }
+        
+        #meta { font-size: 1.4rem; margin-bottom: 15px; font-weight: 600; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 10px; }
+        
+        #timer { font-size: 5.5rem; font-weight: 300; font-family: 'Courier New', monospace; margin: 5px 0; color: var(--timer-green); text-shadow: 0 0 20px rgba(64, 255, 112, 0.4); }
+        
+        #progresso { font-size: 0.8rem; margin-top: 20px; opacity: 0.6; letter-spacing: 1px; }
+        
+        /* CAMADA DE TOQUE CORRIGIDA */
+        #camada-toque { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; cursor: pointer; }
         
         #btn-voltar {
-            position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%);
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             background: #2c5d97; border: 2px solid var(--accent-cyan); color: white;
-            padding: 15px 45px; border-radius: 35px; font-size: 1.1rem; z-index: 10; font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            cursor: pointer;
+            padding: 12px 40px; border-radius: 35px; font-size: 1rem; z-index: 10; font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer;
         }
-        .instrucao { font-size: 1rem; color: var(--accent-cyan); margin-top: 15px; font-weight: bold; text-transform: uppercase; }
+        
+        .instrucao { font-size: 0.9rem; color: var(--accent-cyan); margin-top: 10px; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -106,4 +116,154 @@
             { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
             { n: "Propriocepção", m: "60 segundos cada lado", t: 60, d: true },
             { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
-            { n: "Salto horizontal com flexão",
+            { n: "Salto horizontal com flexão", m: "10 repetições", t: 0, d: false },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
+            { n: "Prancha frontal", m: "2 minutos", t: 120, d: false },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
+            { n: "Extensão lombar (superman)", m: "20 repetições", t: 0, d: false },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
+            { n: "Afundo", m: "10 repetições cada lado", t: 0, d: true },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
+            { n: "Flexão com elevação de pernas", m: "20 repetições", t: 0, d: false },
+            { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
+            { n: "Aceleração máxima", m: "60 segundos", t: 60, d: false }
+        ];
+
+        let indice = -1;
+        let tempoRestante = 0;
+        let interval = null;
+        let emExecucao = false;
+        let ladoB = false;
+        let aguardandoProximo = true;
+
+        function gerenciarClique() {
+            if (emExecucao) return;
+            if (aguardandoProximo) {
+                avancar();
+            } else {
+                iniciarTimer();
+            }
+        }
+
+        function atualizarTela() {
+            clearInterval(interval);
+            emExecucao = false;
+            
+            const ex = listaExercicios[indice];
+            if(!ex) return;
+
+            document.getElementById('exercicio-nome').innerText = ex.n;
+            document.getElementById('meta').innerText = ex.m;
+            document.getElementById('progresso').innerText = `${indice + 1} / ${listaExercicios.length}`;
+            
+            if (ex.d) {
+                document.getElementById('lado-info').innerText = ladoB ? "LADO B" : "LADO A";
+            } else {
+                document.getElementById('lado-info').innerText = "";
+            }
+
+            if (ex.t > 0) {
+                tempoRestante = ex.t;
+                atualizarRelogio(tempoRestante);
+                document.getElementById('status').innerText = "PREPARAR TEMPO";
+                document.getElementById('msg-instrucao').innerText = "Toque para iniciar";
+                aguardandoProximo = false;
+            } else {
+                document.getElementById('timer').innerText = "GO!";
+                document.getElementById('status').innerText = "EXECUTE AS REPS";
+                document.getElementById('msg-instrucao').innerText = "Toque ao terminar";
+                aguardandoProximo = !ex.d || (ex.d && ladoB);
+                if (ex.d && !ladoB) aguardandoProximo = false;
+            }
+        }
+
+        function avancar() {
+            const exAtu = listaExercicios[indice];
+            if (exAtu && exAtu.d && !ladoB && exAtu.t === 0) {
+                ladoB = true;
+                atualizarTela();
+                return;
+            }
+            if (indice < listaExercicios.length - 1) {
+                indice++;
+                ladoB = false;
+                atualizarTela();
+            } else {
+                finalizar();
+            }
+        }
+
+        function voltar() {
+            clearInterval(interval);
+            if (ladoB) {
+                ladoB = false;
+            } else if (indice > 0) {
+                indice--;
+                ladoB = listaExercicios[indice].d;
+            }
+            atualizarTela();
+        }
+
+        function iniciarTimer() {
+            emExecucao = true;
+            document.getElementById('status').innerText = "EM AÇÃO!";
+            document.getElementById('msg-instrucao').innerText = "Mantenha o foco";
+            
+            interval = setInterval(() => {
+                tempoRestante--;
+                atualizarRelogio(tempoRestante);
+                if (tempoRestante <= 0) {
+                    finalizarPeriodo();
+                }
+            }, 1000);
+        }
+
+        function finalizarPeriodo() {
+            clearInterval(interval);
+            emExecucao = false;
+            beep();
+            
+            const ex = listaExercicios[indice];
+            if (ex.d && !ladoB) {
+                ladoB = true;
+                aguardandoProximo = false;
+                document.getElementById('status').innerText = "TROQUE O LADO";
+                document.getElementById('msg-instrucao').innerText = "Toque para LADO B";
+                document.getElementById('lado-info').innerText = "LADO B";
+                tempoRestante = ex.t;
+                atualizarRelogio(tempoRestante);
+            } else {
+                aguardandoProximo = true;
+                document.getElementById('status').innerText = "CONCLUÍDO";
+                document.getElementById('msg-instrucao').innerText = "Toque para PRÓXIMO";
+            }
+        }
+
+        function atualizarRelogio(seg) {
+            const m = Math.floor(seg / 60);
+            const s = seg % 60;
+            document.getElementById('timer').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function finalizar() {
+            document.getElementById('exercicio-nome').innerText = "TREINO PAGO!";
+            document.getElementById('meta').innerText = "Parabéns!";
+            document.getElementById('timer').innerText = "FIM";
+            document.getElementById('status').innerText = "OBJETIVO CONCLUÍDO";
+            document.getElementById('msg-instrucao').innerText = "Recomeçar?";
+            aguardandoProximo = true;
+            indice = -1;
+        }
+
+        function beep() {
+            try {
+                const context = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = context.createOscillator();
+                osc.connect(context.destination);
+                osc.start();
+                osc.stop(context.currentTime + 0.4);
+            } catch(e) {}
+        }
+    </script>
+</body>
+</html>
