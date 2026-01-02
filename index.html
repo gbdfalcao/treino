@@ -40,23 +40,22 @@
             font-family: sans-serif;
         }
 
-        /* BOX DO CRONÔMETRO GLOBAL E HORA DE INÍCIO */
         #global-timer-container {
             background-color: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--accent-cyan);
             padding: 10px 25px;
             border-radius: 8px;
-            margin-top: 80px;
+            margin-top: 85px;
             font-family: 'Courier New', monospace;
             color: var(--text-white);
             z-index: 10;
             display: inline-block;
         }
 
-        #global-timer {
+        #global-timer-label {
             color: var(--accent-cyan);
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             display: block;
         }
 
@@ -84,21 +83,49 @@
             text-align: center;
         }
 
-        #container { width: 85%; max-width: 450px; z-index: 1; pointer-events: none; margin-top: 10px; }
+        #container { 
+            width: 85%; 
+            max-width: 450px; 
+            z-index: 1; 
+            pointer-events: none; 
+            margin-top: 10px;
+            margin-bottom: 80px; /* Espaço para o botão voltar não atropelar nada */
+        }
+
         h1#status { font-size: 1.1rem; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 2px; margin: 0; }
         #lado-info { font-size: 1.4rem; color: var(--side-gold); font-weight: bold; height: 35px; margin-top: 10px; }
         #exercicio-nome { font-size: 2.1rem; font-weight: 800; margin: 10px 0; min-height: 90px; line-height: 1.1; }
         #meta { font-size: 1.4rem; margin-bottom: 15px; font-weight: 600; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 10px; }
         #timer { font-size: 5.5rem; font-weight: 300; font-family: 'Courier New', monospace; margin: 5px 0; color: var(--timer-green); text-shadow: 0 0 20px rgba(64, 255, 112, 0.4); }
-        #progresso { font-size: 0.8rem; margin-top: 20px; opacity: 0.6; letter-spacing: 1px; }
-        #camada-toque { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; cursor: pointer; }
-        #btn-voltar {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: #2c5d97; border: 2px solid var(--accent-cyan); color: white;
-            padding: 12px 40px; border-radius: 35px; font-size: 1rem; z-index: 10; font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer;
+        
+        #progresso { 
+            font-size: 0.9rem; 
+            margin-top: 15px; 
+            opacity: 0.7; 
+            letter-spacing: 1px; 
+            font-weight: bold;
         }
-        .instrucao { font-size: 0.9rem; color: var(--accent-cyan); margin-top: 10px; font-weight: bold; text-transform: uppercase; }
+
+        #camada-toque { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; cursor: pointer; }
+
+        #btn-voltar {
+            position: fixed; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            background: #2c5d97; 
+            border: 2px solid var(--accent-cyan); 
+            color: white;
+            padding: 10px 30px; 
+            border-radius: 35px; 
+            font-size: 0.9rem; 
+            z-index: 10; 
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+            cursor: pointer;
+        }
+
+        .instrucao { font-size: 0.85rem; color: var(--accent-cyan); margin-top: 5px; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -171,7 +198,6 @@
             if (globalIniciado) return;
             globalIniciado = true;
             
-            // Registra a hora real de início
             const agora = new Date();
             const h = agora.getHours().toString().padStart(2, '0');
             const m_inicio = agora.getMinutes().toString().padStart(2, '0');
@@ -189,7 +215,6 @@
 
         function gerenciarClique() {
             if (emExecucao) return;
-
             if (aguardandoProximo) {
                 avancar();
             } else {
