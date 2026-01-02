@@ -40,13 +40,13 @@
             font-family: sans-serif;
         }
 
+        /* BOX DO CRONÔMETRO GLOBAL E HORA DE INÍCIO */
         #global-timer-container {
             background-color: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--accent-cyan);
-            padding: 8px 20px;
+            padding: 10px 25px;
             border-radius: 8px;
             margin-top: 80px;
-            font-size: 0.9rem;
             font-family: 'Courier New', monospace;
             color: var(--text-white);
             z-index: 10;
@@ -56,7 +56,18 @@
         #global-timer {
             color: var(--accent-cyan);
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+            display: block;
+        }
+
+        #hora-inicio-display {
+            font-size: 0.75rem;
+            margin-top: 4px;
+            opacity: 0.8;
+            color: var(--side-gold);
+            display: block;
+            border-top: 1px solid rgba(0, 212, 255, 0.2);
+            padding-top: 4px;
         }
 
         body {
@@ -73,7 +84,7 @@
             text-align: center;
         }
 
-        #container { width: 85%; max-width: 450px; z-index: 1; pointer-events: none; margin-top: 20px; }
+        #container { width: 85%; max-width: 450px; z-index: 1; pointer-events: none; margin-top: 10px; }
         h1#status { font-size: 1.1rem; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 2px; margin: 0; }
         #lado-info { font-size: 1.4rem; color: var(--side-gold); font-weight: bold; height: 35px; margin-top: 10px; }
         #exercicio-nome { font-size: 2.1rem; font-weight: 800; margin: 10px 0; min-height: 90px; line-height: 1.1; }
@@ -97,7 +108,8 @@
     </header>
 
     <div id="global-timer-container">
-        TEMPO TOTAL: <span id="global-timer">00:00</span>
+        <span id="global-timer-label">DURAÇÃO: 00:00</span>
+        <span id="hora-inicio-display">INÍCIO: --:--:--</span>
     </div>
 
     <div id="camada-toque" onclick="gerenciarClique()"></div>
@@ -150,6 +162,7 @@
         let emExecucao = false;
         let ladoB = false;
         let aguardandoProximo = true;
+        
         let tempoGlobalSegundos = 0;
         let globalInterval = null;
         let globalIniciado = false;
@@ -157,22 +170,32 @@
         function iniciarCronometroGlobal() {
             if (globalIniciado) return;
             globalIniciado = true;
+            
+            // Registra a hora real de início
+            const agora = new Date();
+            const h = agora.getHours().toString().padStart(2, '0');
+            const m_inicio = agora.getMinutes().toString().padStart(2, '0');
+            const s_inicio = agora.getSeconds().toString().padStart(2, '0');
+            document.getElementById('hora-inicio-display').innerText = `INÍCIO: ${h}:${m_inicio}:${s_inicio}`;
+
             globalInterval = setInterval(() => {
                 tempoGlobalSegundos++;
                 const m = Math.floor(tempoGlobalSegundos / 60);
                 const s = tempoGlobalSegundos % 60;
-                document.getElementById('global-timer').innerText = 
-                    `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                document.getElementById('global-timer-label').innerText = 
+                    `DURAÇÃO: ${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             }, 1000);
         }
 
         function gerenciarClique() {
             if (emExecucao) return;
-            if (!globalIniciado && indice === -1) iniciarCronometroGlobal();
 
             if (aguardandoProximo) {
                 avancar();
             } else {
+                if (!globalIniciado) {
+                    iniciarCronometroGlobal();
+                }
                 iniciarTimer();
             }
         }
@@ -243,7 +266,7 @@
             
             interval = setInterval(() => {
                 tempoRestante--;
-                if (tempoRestante < 0) tempoRestante = 0; // Evita negativos na tela
+                if (tempoRestante < 0) tempoRestante = 0;
                 atualizarRelogio(tempoRestante);
                 if (tempoRestante <= 0) {
                     finalizarPeriodo();
@@ -286,6 +309,7 @@
             document.getElementById('timer').innerText = "FIM";
             document.getElementById('status').innerText = "OBJETIVO CONCLUÍDO";
             document.getElementById('msg-instrucao').innerText = "Toque para recomeçar";
+            
             aguardandoProximo = true;
             indice = -1;
             globalIniciado = false;
