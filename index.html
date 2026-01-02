@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#1a3a5f">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a3a5f">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <title>Treino - Gabriel Falcão</title>
     
@@ -20,7 +20,6 @@
             --side-gold: #ffd700;
         }
 
-        /* CABEÇALHO FIXO COM SEU NOME */
         .header-identificacao {
             width: 100%;
             background-color: rgba(0, 0, 0, 0.4);
@@ -41,6 +40,25 @@
             font-family: sans-serif;
         }
 
+        #global-timer-container {
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--accent-cyan);
+            padding: 8px 20px;
+            border-radius: 8px;
+            margin-top: 80px;
+            font-size: 0.9rem;
+            font-family: 'Courier New', monospace;
+            color: var(--text-white);
+            z-index: 10;
+            display: inline-block;
+        }
+
+        #global-timer {
+            color: var(--accent-cyan);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
             background-color: var(--bg-blue);
@@ -55,30 +73,20 @@
             text-align: center;
         }
 
-        #container { width: 85%; max-width: 450px; z-index: 1; pointer-events: none; margin-top: 60px; }
-        
+        #container { width: 85%; max-width: 450px; z-index: 1; pointer-events: none; margin-top: 20px; }
         h1#status { font-size: 1.1rem; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 2px; margin: 0; }
-        
         #lado-info { font-size: 1.4rem; color: var(--side-gold); font-weight: bold; height: 35px; margin-top: 10px; }
-        
         #exercicio-nome { font-size: 2.1rem; font-weight: 800; margin: 10px 0; min-height: 90px; line-height: 1.1; }
-        
         #meta { font-size: 1.4rem; margin-bottom: 15px; font-weight: 600; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 10px; }
-        
         #timer { font-size: 5.5rem; font-weight: 300; font-family: 'Courier New', monospace; margin: 5px 0; color: var(--timer-green); text-shadow: 0 0 20px rgba(64, 255, 112, 0.4); }
-        
         #progresso { font-size: 0.8rem; margin-top: 20px; opacity: 0.6; letter-spacing: 1px; }
-        
-        /* CAMADA DE TOQUE CORRIGIDA */
         #camada-toque { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; cursor: pointer; }
-        
         #btn-voltar {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             background: #2c5d97; border: 2px solid var(--accent-cyan); color: white;
             padding: 12px 40px; border-radius: 35px; font-size: 1rem; z-index: 10; font-weight: bold;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer;
         }
-        
         .instrucao { font-size: 0.9rem; color: var(--accent-cyan); margin-top: 10px; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
@@ -87,6 +95,10 @@
     <header class="header-identificacao">
         <h2>Treino - Gabriel Falcão</h2>
     </header>
+
+    <div id="global-timer-container">
+        TEMPO TOTAL: <span id="global-timer">00:00</span>
+    </div>
 
     <div id="camada-toque" onclick="gerenciarClique()"></div>
 
@@ -115,7 +127,7 @@
             { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
             { n: "Abdominal remada", m: "20 repetições", t: 0, d: false },
             { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
-            { n: "Prancha lateral com abdominal", m: "30 repetições cada lado", t: 0, d: true },
+            { n: "Prancha lateral com abdominal", m: "30 repetições cada lado", t: 0, d: false },
             { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
             { n: "Propriocepção", m: "60 segundos cada lado", t: 60, d: true },
             { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
@@ -125,7 +137,7 @@
             { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
             { n: "Extensão lombar (superman)", m: "20 repetições", t: 0, d: false },
             { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
-            { n: "Afundo", m: "10 repetições cada lado", t: 0, d: true },
+            { n: "Afundo", m: "10 repetições cada lado", t: 0, d: false },
             { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
             { n: "Flexão com elevação de pernas", m: "20 repetições", t: 0, d: false },
             { n: "Corrida estacionária", m: "60 segundos", t: 60, d: false },
@@ -138,9 +150,26 @@
         let emExecucao = false;
         let ladoB = false;
         let aguardandoProximo = true;
+        let tempoGlobalSegundos = 0;
+        let globalInterval = null;
+        let globalIniciado = false;
+
+        function iniciarCronometroGlobal() {
+            if (globalIniciado) return;
+            globalIniciado = true;
+            globalInterval = setInterval(() => {
+                tempoGlobalSegundos++;
+                const m = Math.floor(tempoGlobalSegundos / 60);
+                const s = tempoGlobalSegundos % 60;
+                document.getElementById('global-timer').innerText = 
+                    `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            }, 1000);
+        }
 
         function gerenciarClique() {
             if (emExecucao) return;
+            if (!globalIniciado && indice === -1) iniciarCronometroGlobal();
+
             if (aguardandoProximo) {
                 avancar();
             } else {
@@ -214,6 +243,7 @@
             
             interval = setInterval(() => {
                 tempoRestante--;
+                if (tempoRestante < 0) tempoRestante = 0; // Evita negativos na tela
                 atualizarRelogio(tempoRestante);
                 if (tempoRestante <= 0) {
                     finalizarPeriodo();
@@ -249,13 +279,17 @@
         }
 
         function finalizar() {
+            clearInterval(interval);
+            clearInterval(globalInterval);
             document.getElementById('exercicio-nome').innerText = "TREINO PAGO!";
             document.getElementById('meta').innerText = "Parabéns!";
             document.getElementById('timer').innerText = "FIM";
             document.getElementById('status').innerText = "OBJETIVO CONCLUÍDO";
-            document.getElementById('msg-instrucao').innerText = "Recomeçar?";
+            document.getElementById('msg-instrucao').innerText = "Toque para recomeçar";
             aguardandoProximo = true;
             indice = -1;
+            globalIniciado = false;
+            tempoGlobalSegundos = 0;
         }
 
         function beep() {
