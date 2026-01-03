@@ -89,7 +89,7 @@
             z-index: 1; 
             pointer-events: none; 
             margin-top: 10px;
-            margin-bottom: 80px; /* Espaço para o botão voltar não atropelar nada */
+            margin-bottom: 100px; 
         }
 
         h1#status { font-size: 1.1rem; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 2px; margin: 0; }
@@ -108,21 +108,34 @@
 
         #camada-toque { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; cursor: pointer; }
 
-        #btn-voltar {
-            position: fixed; 
-            bottom: 20px; 
-            left: 50%; 
+        /* Estilo dos Botões de Navegação */
+        .controles-navegacao {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
             transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 15;
+        }
+
+        .btn-nav {
             background: #2c5d97; 
             border: 2px solid var(--accent-cyan); 
             color: white;
-            padding: 10px 30px; 
+            padding: 12px 25px; 
             border-radius: 35px; 
-            font-size: 0.9rem; 
-            z-index: 10; 
+            font-size: 0.85rem; 
             font-weight: bold;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
             cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .btn-nav:active {
+            background: var(--accent-cyan);
+            color: var(--bg-blue);
         }
 
         .instrucao { font-size: 0.85rem; color: var(--accent-cyan); margin-top: 5px; font-weight: bold; text-transform: uppercase; }
@@ -151,7 +164,10 @@
         <div id="progresso">0 / 26</div>
     </div>
 
-    <button id="btn-voltar" onclick="voltar()">← VOLTAR</button>
+    <div class="controles-navegacao">
+        <button class="btn-nav" onclick="voltar()">← VOLTAR</button>
+        <button class="btn-nav" onclick="pular()">AVANÇAR →</button>
+    </div>
 
     <script>
         const listaExercicios = [
@@ -225,6 +241,12 @@
             }
         }
 
+        // Função para o botão pular/avançar forçado
+        function pular() {
+            event.stopPropagation(); // Evita conflito com o clique da camada
+            avancar();
+        }
+
         function atualizarTela() {
             clearInterval(interval);
             emExecucao = false;
@@ -259,7 +281,8 @@
 
         function avancar() {
             const exAtu = listaExercicios[indice];
-            if (exAtu && exAtu.d && !ladoB && exAtu.t === 0) {
+            // Lógica para alternar lado antes de mudar de exercício
+            if (exAtu && exAtu.d && !ladoB) {
                 ladoB = true;
                 atualizarTela();
                 return;
@@ -274,12 +297,13 @@
         }
 
         function voltar() {
+            event.stopPropagation();
             clearInterval(interval);
             if (ladoB) {
                 ladoB = false;
             } else if (indice > 0) {
                 indice--;
-                ladoB = listaExercicios[indice].d;
+                ladoB = listaExercicios[indice].d; // Volta para o lado B do anterior se existir
             }
             atualizarTela();
         }
@@ -345,7 +369,12 @@
             try {
                 const context = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = context.createOscillator();
-                osc.connect(context.destination);
+                const gain = context.createGain();
+                osc.connect(gain);
+                gain.connect(context.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, context.currentTime); 
+                gain.gain.setValueAtTime(0.1, context.currentTime);
                 osc.start();
                 osc.stop(context.currentTime + 0.4);
             } catch(e) {}
